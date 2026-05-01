@@ -1,20 +1,18 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Pixel 10 Journal
 
-# Run and deploy your AI Studio app
+A secure, private, offline-first journaling application built with React, Vite, and Firebase.
 
-This contains everything you need to run your app locally.
+## Deployment to Firebase Hosting
 
-View your app in AI Studio: https://ai.studio/apps/1f58bb4e-1002-4724-92a2-5ad5e1fe4254
+This project is configured to deploy to Firebase Hosting automatically via GitHub Actions whenever changes are pushed to the \`main\` branch.
 
-## Run Locally
+### Setup Instructions
 
-**Prerequisites:**  Node.js
+For the deployment to succeed, you must provide the GitHub Action with permission to deploy to your Firebase project.
 
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+1. Generate a Service Account key from your Google Cloud Console / Firebase Console.
+2. In your GitHub repository, navigate to **Settings > Secrets and variables > Actions**.
+3. Create a new repository secret with the following details:
+   - **Name**: \`FIREBASE_SERVICE_ACCOUNT\`
+   - **Secret**: Paste the entirely of the JSON string from the generated service account key file.
+4. Push your code to the \`main\` branch to trigger the deployment pipeline.

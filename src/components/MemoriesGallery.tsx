@@ -49,9 +49,7 @@ export default function MemoriesGallery({ user }: { user: User }) {
           {entries.map(entry => (
             <div key={entry.id} className="aspect-[16/9] bg-[#15181C] border border-[#2C313A] rounded-xl overflow-hidden relative group">
               <div className="absolute inset-0 flex items-center justify-center text-slate-500 bg-[#0D0F12]">
-                {/* Placeholder for actual image: Use first attachment */}
-                {entry.attachments[0]}
-                <span className="text-xs">Image</span>
+                <img src={entry.attachments[0]} alt="Memory" className="w-full h-full object-cover" />
               </div>
               <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-3">
                 <p className="text-white text-sm line-clamp-2">{entry.text}</p>

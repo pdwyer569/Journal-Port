@@ -4,12 +4,51 @@ import Timeline from './components/Timeline';
 import MoodMap from './components/MoodMap';
 import MemoriesGallery from './components/MemoriesGallery';
 import NewEntryModal from './components/NewEntryModal';
-import { auth } from './lib/firebase';
-import { Plus, Book, BarChart2, Image as ImageIcon, LogOut } from 'lucide-react';
+import { auth, db } from './lib/firebase';
+import { collection, query, orderBy, getDocs } from 'firebase/firestore';
+import { Plus, Book, BarChart2, Image as ImageIcon, LogOut, Download, Loader2 } from 'lucide-react';
+import { User } from 'firebase/auth';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'timeline' | 'moodmap' | 'gallery'>('timeline');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleExport = async (user: User) => {
+    setIsExporting(true);
+    try {
+      const q = query(
+        collection(db, 'users', user.uid, 'entries'),
+        orderBy('createdAt', 'asc')
+      );
+      const snapshot = await getDocs(q);
+      const data = snapshot.docs.map((doc) => {
+        const item = doc.data();
+        return {
+          id: doc.id,
+          ...item,
+          createdAt: item.createdAt?.toDate?.()?.toISOString() || item.createdAt,
+          updatedAt: item.updatedAt?.toDate?.()?.toISOString() || item.updatedAt
+        };
+      });
+
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `pixel10-export-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error("Failed to export entries", e);
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   return (
     <Auth>
@@ -24,6 +63,16 @@ export default function App() {
             
             <div className="flex items-center gap-4">
               <span className="text-sm font-medium text-slate-400 hidden sm:block">{user.email}</span>
+              
+              <button 
+                onClick={() => handleExport(user)}
+                disabled={isExporting}
+                className="p-2 text-slate-400 hover:text-white hover:bg-[#15181C] rounded-full transition-colors disabled:opacity-50"
+                title="Export Data"
+              >
+                {isExporting ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
+              </button>
+
               <button 
                 onClick={() => auth.signOut()} 
                 className="p-2 text-slate-400 hover:text-white hover:bg-[#15181C] rounded-full transition-colors"
